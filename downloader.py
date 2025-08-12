@@ -12,7 +12,7 @@ OUTPUT_DIR = "jira_export"
 def fetch_issues(start_at=0, max_results=50):
     url = f"{JIRA_URL}/rest/api/3/search"
     query = {
-        'jql': f'project={PROJECT_KEY}',
+        'jql': f'project = "{PROJECT_KEY}"',
         'startAt': start_at,
         'maxResults': max_results,
         'fields': 'summary,description,comment,attachment'

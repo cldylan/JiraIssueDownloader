@@ -18,6 +18,7 @@ from config import JIRA_URL, PROJECT_KEY, USERNAME, API_TOKEN
 AUTH = (USERNAME, API_TOKEN)
 HEADERS = {"Accept": "application/json"}
 OUTPUT_DIR = "jira_export"
+CHUNK_SIZE = 8192  # 8KB chunks for downloading attachments, feel free to change
 
 
 def fetch_issues(start_at=0, max_results=50):
@@ -139,15 +140,18 @@ def download_attachments(attachments, folder_path):
         filename = att['filename']
         response = requests.get(url, auth=AUTH, stream=True)
         response.raise_for_status()
-        with open(os.path.join(folder_path, filename), 'wb') as f:
-            shutil.copyfileobj(response.raw, f)
+        file_path = os.path.join(folder_path, filename)
+        with open(file_path, 'wb') as f:
+            for chunk in response.iter_content(CHUNK_SIZE):
+                if chunk:  # filter out keep-alive chunks
+                    f.write(chunk)
 
 
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     start_at = 0
-    max_results = 1
+    max_results = 50
     total = 1
 
     while start_at < total:

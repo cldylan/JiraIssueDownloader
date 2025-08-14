@@ -41,7 +41,7 @@ def fetch_issues(start_at=0, max_results=50):
         'jql': f'project = "{PROJECT_KEY}"',
         'startAt': start_at,
         'maxResults': max_results,
-        'fields': 'summary,description,comment,attachment'
+        'fields': 'issuetype,project,summary,description,comment,attachment'
     }
     response = requests.get(url, headers=HEADERS, auth=AUTH, params=query)
     response.raise_for_status()
@@ -88,7 +88,7 @@ def create_pdf(issue_key, issue_data, output_path):
     metadata = {
         "Projet": issue_data['fields'].get('project', {}).get('name', ''),
         "Type": issue_data['fields'].get('issuetype', {}).get('name', ''),
-        "Priorité": issue_data['fields'].get('priority', {}).get('name', ''),
+        "Priority": issue_data['fields'].get('priority', {}).get('name', ''),
         "Reporter": issue_data['fields'].get('reporter', {}).get('displayName', ''),
         "Assignee": issue_data['fields'].get('assignee', {}).get('displayName', ''),
     }
@@ -129,7 +129,10 @@ def download_attachments(attachments, folder_path):
     
     Parameters
     ----------
-    
+    attachments : list
+        A list of attachment metadata from the Jira issue.
+    folder_path : str
+        The path to the folder where attachments will be saved.
     """
     for att in attachments:
         url = att['content']
